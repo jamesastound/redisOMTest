@@ -1,3 +1,4 @@
+// Testing Redis-OM Dynamic MYSQL
 const buildSchema = require("./build/build");
 (async function main() {
   try {
