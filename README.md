@@ -94,5 +94,5 @@ Inserted into Redis-OM Repository. [
 
 ### Tested MYSQL Database Table Schemas:
 
-- `SAMPLE_DB_SCHEMA1.md` (Completion_Status_Log)
-- `SAMPLE_DB_SCHEMA2.md` (Address_Data)
+- [SAMPLE_DB_SCHEMA1.md](https://github.com/jamesastound/redisOMTest/blob/master/SAMPLE_DB_SCHEMA1.md) (Completion_Status_Log)
+- [SAMPLE_DB_SCHEMA2.md](https://github.com/jamesastound/redisOMTest/blob/master/SAMPLE_DB_SCHEMA2.md) (Address_Data)
