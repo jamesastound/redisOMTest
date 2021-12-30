@@ -4,12 +4,17 @@ Testing [redis-om-node](https://github.com/redis/redis-om-node) Dynamimc MYSQL I
 
 Test environment uses Redis-OM `redislabs/redismod:preview` docker container, from the [Getting Started](https://github.com/redis/redis-om-node/blob/main/README.md) section of the documentation. This includes RedisSearch and RedisJSON.
 
-### Testing goals:
+### Testing Goals:
 
 - Dynamically generate Redis OM Schema using MYSQL Schema
-- Redis-OM Team is looking to add support for [Dates](https://github.com/redis/redis-om-node/issues/5). Until then, date data types will need to be converted to numeric values. For now `util/timstamp.js` converts to UNIX Timestamps.
+- Redis-OM Team is looking to add support for [Dates](https://github.com/redis/redis-om-node/issues/5). Until then, date data types will need to be converted to numeric values. For now, [util/timstamp.js](https://github.com/jamesastound/redisOMTest/blob/master/main/util/timestamp.js), converts to UNIX Timestamps.
 - Insert data into Redis OM repository.
 - Track inserts based on an index key (timestamp or auto increment value/other unique integer)
+
+### Testing Limits:
+
+- I don't have current plans to create a distributable package, so MYSQL Data Types are limited to those found in [util/conversion.js](https://github.com/jamesastound/redisOMTest/blob/master/main/util/conversion.js).
+- I don't use other data types, so types that don't result in a string, number or timestamp are not being considered in this project.
 
 ### Example Schema Generation
 
