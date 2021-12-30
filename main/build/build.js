@@ -14,11 +14,19 @@ const buildSchema = async ({ tableName }) => {
   await connection.end();
 
   // Map the MYSQL Data Types to Redis-OM Data Types
-  const mapSchema = databaseSchema.map((line) => {
-    const { Field, Type } = line;
-    const { omType } = mysqlToRedisOMDataTypes.find((line) => line.sqlType === Type.split("(")[0]);
-    return { Field, Type, omType };
-  });
+  const mapSchema = databaseSchema
+    .map((line) => {
+      const { Field, Type } = line;
+      const { omType } = mysqlToRedisOMDataTypes.find((line) => line.sqlType === Type.split("(")[0]) || {};
+      return { Field, Type, omType };
+    })
+    .filter((line) => {
+      if (line.omType !== undefined) {
+        return true;
+      } else {
+        console.error(`${line.Field} is not a data type defined in conversion.js.`);
+      }
+    });
 
   // Create the Redis-OM Schema
   const omScehma = {};
