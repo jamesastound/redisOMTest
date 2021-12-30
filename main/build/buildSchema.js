@@ -3,15 +3,21 @@ const extendClass = require("../util/extendClass.js");
 // https://github.com/redis/redis-om-node
 const { Entity, Schema } = require("redis-om");
 
-const buildSchema = async ({ tableName }) => {
+const buildSchema = async ({ tableName, options }) => {
   // Connect to MYSQL Database
-  const connection = await require("../util/database.js");
+  const sqlConnection = await require("../util/database.js");
 
   // Get the table schema from the MYSQL Database
-  const databaseSchema = await connection.query(`describe ${tableName}`);
-  // console.log(databaseSchema);
-  // Close the connection to the MYSQL Database
-  await connection.end();
+  const databaseSchema = await sqlConnection.query(`describe ${tableName}`).catch((err) => {
+    console.error(
+      "Database Error. Did you change the configuration options to valid values? ERROR MESSAGE:",
+      err.sqlMessage
+    );
+    process.exit(1);
+  });
+  console.log(databaseSchema);
+  // Close the sqlConnection to the MYSQL Database
+  await sqlConnection.pause();
 
   // Map the MYSQL Data Types to Redis-OM Data Types
   const mapSchema = databaseSchema
@@ -37,13 +43,6 @@ const buildSchema = async ({ tableName }) => {
 
   // Create the Redis-OM Entity
   process[tableName] = extendClass(tableName, Entity);
-
-  // Add Redis-OM Options
-  const options = {
-    dataStructure: "JSON", // USE Redis-JSON
-    useStopWords: "OFF", // Turn off Redis-SEARCH Stop Words
-    // https://github.com/redis/redis-om-node/issues/13
-  };
 
   // Return the Redis-OM Schema
   return new Schema(process[tableName], omScehma, options);
