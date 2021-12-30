@@ -25,6 +25,7 @@ const buildSchema = async ({ tableName }) => {
         return true;
       } else {
         console.error(`${line.Field} is not a data type defined in conversion.js.`);
+        return false;
       }
     });
 
