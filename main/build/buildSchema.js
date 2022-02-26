@@ -15,7 +15,7 @@ const buildSchema = async ({ tableName, options }) => {
     );
     process.exit(1);
   });
-  console.log(databaseSchema);
+  // console.log(databaseSchema);
   // Close the sqlConnection to the MYSQL Database
   await sqlConnection.pause();
 
@@ -38,7 +38,11 @@ const buildSchema = async ({ tableName, options }) => {
   // Create the Redis-OM Schema
   const omScehma = {};
   mapSchema.forEach((line) => {
-    omScehma[line.Field] = { type: line.omType };
+    if (line.omType == "text") {
+      omScehma[line.Field] = { type: line.omType, textSearch: true };
+    } else {
+      omScehma[line.Field] = { type: line.omType };
+    }
   });
 
   // Create the Redis-OM Entity
@@ -46,6 +50,7 @@ const buildSchema = async ({ tableName, options }) => {
 
   // Return the Redis-OM Schema
   return new Schema(process[tableName], omScehma, options);
+  // return new MySchema(process[tableName], omScehma, options);
 };
 
 module.exports = buildSchema;
