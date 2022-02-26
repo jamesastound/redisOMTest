@@ -3,7 +3,23 @@ const DBInsert = require("./DBInsert");
 const { convertBackToDate } = require("../util/timestamp");
 const buildRepository = async ({ omSchema, omClient, dbData, tableIndex, tableName, tableIndexType }) => {
   // Create a new Repository object
-  const repository = new Repository(omSchema, omClient);
+
+  // class CustomRepository extends Repository {
+  //   createEntity(data) {
+  //     let id = createMyCustomID;
+  //     let entity = new this.schema.entityCtor(this.schema.definition, id);
+  //     for (let key in data) {
+  //       if (this.schema.entityCtor.prototype.hasOwnProperty(key)) {
+  //         entity[key] = data[key];
+  //       }
+  //     }
+  //     return entity;
+  //   }
+  // }
+
+  // Changed to redis-om 0.2.0 method.
+  const repository = omClient.fetchRepository(omSchema);
+
   // Track Last Index
   let lastIndex = 0;
 
@@ -18,7 +34,10 @@ const buildRepository = async ({ omSchema, omClient, dbData, tableIndex, tableNa
       const dbEntry = repository.createEntity(item);
       // Return Redis OM Entity ID
       // Redis Key is tableName + Entity ID.
-      return await repository.save(dbEntry);
+      return await repository.save(dbEntry).catch((err) => {
+        console.error(err);
+        console.log(item);
+      });
     })
   );
 
@@ -37,7 +56,7 @@ const buildRepository = async ({ omSchema, omClient, dbData, tableIndex, tableNa
   await repository.dropIndex();
   await repository.createIndex();
   console.log("Updated RedisSearch Index.");
-  return omInsert;
+  return { omInsert, repository };
 };
 
 module.exports = buildRepository;
