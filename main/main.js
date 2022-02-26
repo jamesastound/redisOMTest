@@ -14,10 +14,10 @@ require("dotenv").config();
 
     // Also update .env_sample with your credentials and rename to .env
 
-    const tableName = "Address_Data"; // MYSQL Database Table Name
-    const tableIndex = "Address_ID"; // Timestamp column name to use as insertion index.
+    const tableName = "Customer_Table"; // MYSQL Database Table Name
+    const tableIndex = "Customer_ID"; // Timestamp column name to use as insertion index.
     const tableIndexType = "int"; // Choose between 'timedate' (for timestamps) or 'int' (for auto-increment)
-    const tableLimit = 10; // Maximum number of rows to insert at a time.
+    const tableLimit = 1000; // Maximum number of rows to insert at a time.
 
     // Add Redis-OM Options
     const options = {
@@ -44,6 +44,9 @@ require("dotenv").config();
       process.exit(1);
     });
     console.log(`Connected to Redis: ${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`);
+
+    // Delete last index if it exists
+    // const deleteIndex = new DBInsert({ tableName, omClient }).deleteLastIndex();
 
     // Get latest index for this table.
     const lastIndex = (await new DBInsert({ tableName, omClient }).getLastIndex()) || 0;
@@ -74,14 +77,14 @@ require("dotenv").config();
 
     if (dbData.length === 0) {
       console.log("No new data to insert.");
-      process.exit();
+      // process.exit();
     }
 
     // Check if any of the database entries are dates and conver them to unix timestamps.
     const dbDataConverted = convertMYSQLTimestamp(dbData);
 
     // Insert the data into Redis OM Repository
-    const insertEntityList = await buildRepository({
+    const { omInsert, repository } = await buildRepository({
       omSchema,
       omClient,
       dbData: dbDataConverted,
@@ -90,8 +93,17 @@ require("dotenv").config();
       tableIndexType,
     });
 
-    console.log("Inserted into Redis-OM Repository.", insertEntityList);
+    console.log("Inserted into Redis-OM Repository.", omInsert[0]);
+    console.log("Dropping Index");
+    await repository.dropIndex();
+    console.log("Creating Index");
+    await repository.createIndex();
+    // const test = await repository.search().return.count();
+    // const mapped = test.length > 0 ? test.map((res) => `${res.First_Name} ${res.Last_Name}`) : test;
+    // console.log("test", mapped);
 
+    // const test2 = await repository.search().where("First_Name").matches("James").return.all();
+    // console.log("test2", test2);
     await omClient.close();
 
     process.exit();
